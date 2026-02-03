@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>默陌信笺手写体 - p5.js演示</title>
+    <!-- 加载p5.js库 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/addons/p5.sound.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .header {
+            max-width: 800px;
+            margin: 0 auto 40px;
+            text-align: center;
+            color: white;
+            padding: 40px 20px;
+        }
+        
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        
+        .header .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            justify-content: center;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .card h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #3498db;
+        }
+        
+        .instructions {
+            line-height: 1.6;
+        }
+        
+        .instructions ol {
+            margin-left: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .instructions li {
+            margin-bottom: 10px;
+        }
+        
+        .code-block {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            margin: 15px 0;
+            overflow-x: auto;
+            border-left: 4px solid #3498db;
+        }
+        
+        .status-box {
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .loading {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .sketch-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        canvas {
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+            flex: 1;
+            min-width: 120px;
+        }
+        
+        button:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .btn-green {
+            background: #27ae60;
+        }
+        
+        .btn-green:hover {
+            background: #219653;
+        }
+        
+        .btn-purple {
+            background: #9b59b6;
+        }
+        
+        .btn-purple:hover {
+            background: #8e44ad;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            color: white;
+            opacity: 0.8;
+            padding: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🖋️ 默陌信笺手写体演示</h1>
+        <p class="subtitle">使用GitHub Pages部署的p5.js自定义字体项目</p>
+    </div>
+    
+    <div class="container">
+        <div class="card">
+            <h2>📖 使用说明</h2>
+            <div class="instructions">
+                <ol>
+                    <li>字体文件已上传到GitHub仓库</li>
+                    <li>通过GitHub Pages提供字体访问</li>
+                    <li>p5.js从GitHub加载字体文件</li>
+                    <li>实时显示手写字体效果</li>
+                </ol>
+                
+                <div id="font-status" class="status-box loading">
+                    🔄 正在加载字体...
+                </div>
+                
+                <div class="code-block">
+                    // 字体加载代码<br>
+                    myFont = loadFont('默陌信笺手写体.ttf');
+                </div>
+                
+                <p><strong>项目状态：</strong> <span id="github-status">准备中...</span></p>
+                <p><strong>访问地址：</strong> <span id="page-url">加载中...</span></p>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>🎮 控制面板</h2>
+            <div class="controls">
+                <button onclick="changeBackground()" class="btn-green">更换背景</button>
+                <button onclick="toggleAnimation()" class="btn-purple">切换动画</button>
+                <button onclick="changeText()">更换文字</button>
+                <button onclick="resetSketch()">重置效果</button>
+            </div>
+            
+            <div class="sketch-container">
+                <!-- p5.js画布将在这里显示 -->
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <p>© 2024 默陌信笺手写体演示 | 使用p5.js + GitHub Pages</p>
+        <p>项目地址：<span id="repo-link">加载中...</span></p>
+    </div>
+    
+    <!-- p5.js脚本 -->
+    <script src="sketch.js"></script>
+</body>
+</html>
